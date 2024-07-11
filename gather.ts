@@ -53,6 +53,9 @@ const main = async () => {
             console.log("Sell error before gather")
             break
           }
+          if(tokenBalance.uiAmount == 0) {
+            break
+          }
           try {
             const sellTx = await getSellTxWithJupiter(kp, accounts[j].accountInfo.mint, tokenBalance.amount)
             if (sellTx == null) {
@@ -69,7 +72,6 @@ const main = async () => {
             i++
           }
         }
-
         await sleep(1000)
 
         const tokenBalanceAfterSell = (await connection.getTokenAccountBalance(accounts[j].pubkey)).value
