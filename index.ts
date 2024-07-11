@@ -33,7 +33,7 @@ import { getBuyTxWithJupiter, getSellTxWithJupiter } from './utils/swapOnlyAmm'
 import { execute } from './executor/legacy'
 
 export const solanaConnection = new Connection(RPC_ENDPOINT, {
-  wsEndpoint: RPC_WEBSOCKET_ENDPOINT, commitment: "processed"
+  wsEndpoint: RPC_WEBSOCKET_ENDPOINT, commitment: "confirmed"
 })
 
 export const mainKp = Keypair.fromSecretKey(base58.decode(PRIVATE_KEY))
@@ -144,7 +144,6 @@ const main = async () => {
           break
         } else {
           j++
-          console.log("Sell failed, try again")
           await sleep(2000)
         }
       }
