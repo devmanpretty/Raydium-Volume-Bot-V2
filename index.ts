@@ -80,43 +80,36 @@ const main = async () => {
       const solBalance = await solanaConnection.getBalance(srcKp.publicKey)
 
       let buyAmountInPercent = Number((Math.random() * (BUY_UPPER_PERCENT - BUY_LOWER_PERCENT) + BUY_LOWER_PERCENT).toFixed(3))
-      let buyAmount = Math.floor(solBalance * buyAmountInPercent / 100 - 8 * 10 ** 6)   // lamports
-      if (buyAmount <= 8 * 10 ** 6 && solBalance > 8 * 10 ** 6) {
-        buyAmount = 1 * 10 ** 6
-      }
-      console.log(`sol balance: ${solBalance / 10 ** 9}, buyAmount: ${buyAmount / 10 ** 9}, remaining will be ${(solBalance - buyAmount) / 10 ** 9}SOL`)
 
-      if (solBalance < 1.5 * 10 ** 6) {
-        console.log("Balance is not enough: ", solBalance / 10 ** 9, "SOL")
+      if (solBalance < 5 * 10 ** 6) {
+        console.log("Sol balance is not enough in one of wallets")
         return
       }
 
+      let buyAmountFirst = Math.floor((solBalance - 5 * 10 ** 6) / 100 * buyAmountInPercent)
+      let buyAmountSecond = Math.floor(solBalance - buyAmountFirst - 5 * 10 ** 6)
+
+      console.log(`balance: ${solBalance / 10 ** 9} first: ${buyAmountFirst / 10 ** 9} second: ${buyAmountSecond / 10 ** 9}`)
       // try buying until success
       let i = 0
       while (true) {
-        if (i > 10) {
-          console.log("Error in buy transaction")
-          return
-        }
+        try {
 
-        const result = await buy(srcKp, baseMint, buyAmount)
-        if (result) {
-          break
-        } else {
+          if (i > 10) {
+            console.log("Error in buy transaction")
+            return
+          }
+          const result = await buy(srcKp, baseMint, buyAmountFirst)
+          if (result) {
+            break
+          } else {
+            i++
+            await sleep(2000)
+          }
+        } catch (error) {
           i++
-          console.log("Buy failed, try again")
-          await sleep(2000)
         }
       }
-
-      const remainingBalance = await solanaConnection.getBalance(kp.publicKey)
-      let buyRemainingAmount = 0
-      if (remainingBalance > 3 * 10 ** 6)
-        buyRemainingAmount = remainingBalance - 3 * 10 ** 6
-      else
-        console.log("Not enough balance for remaining buy")
-      
-      console.log(`remainingBalance: ${remainingBalance / 10 ** 9}, buyRemainingAmount: ${buyRemainingAmount / 10 ** 9}, remaining will be ${(remainingBalance - buyRemainingAmount) / 10 ** 9}SOL`)
 
       let l = 0
       while (true) {
@@ -125,18 +118,11 @@ const main = async () => {
             console.log("Error in buy transaction")
             throw new Error("Error in buy transaction")
           }
-
-          if (buyRemainingAmount == 0) {
-            console.log("Not enough balance")
-            break
-          }
-
-          const result = await buy(srcKp, baseMint, buyRemainingAmount)
+          const result = await buy(srcKp, baseMint, buyAmountSecond)
           if (result) {
             break
           } else {
             l++
-            console.log("Buy failed, try again")
             await sleep(2000)
           }
         } catch (error) {
@@ -201,7 +187,7 @@ const main = async () => {
           }])
           const sig = await sendAndConfirmTransaction(solanaConnection, tx, [srcKp], { skipPreflight: true })
           srcKp = destinationKp
-
+          console.log(await solanaConnection.getBalance(destinationKp.publicKey) / 10 ** 9, "SOL")
           console.log(`Transferred SOL to new wallet after buy and sell, https://solscan.io/tx/${sig}`)
           break
         } catch (error) {
