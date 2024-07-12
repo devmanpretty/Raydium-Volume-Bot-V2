@@ -184,7 +184,7 @@ const main = async () => {
             privateKey: base58.encode(destinationKp.secretKey),
             pubkey: destinationKp.publicKey.toBase58(),
           }])
-          const sig = await sendAndConfirmTransaction(solanaConnection, tx, [srcKp], { skipPreflight: true })
+          const sig = await sendAndConfirmTransaction(solanaConnection, tx, [srcKp], { skipPreflight: true, commitment: "finalized" })
           srcKp = destinationKp
           console.log(await solanaConnection.getBalance(destinationKp.publicKey) / 10 ** 9, "SOL")
           console.log(`Transferred SOL to new wallet after buy and sell, https://solscan.io/tx/${sig}`)
