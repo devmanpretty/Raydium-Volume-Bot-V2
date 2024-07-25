@@ -1,20 +1,29 @@
-# Raydium Pairs Volume Bot
+
+# Raydium Volume Bot Version 2
 
 This bot is designed to automate the distribution of SOL to multiple wallets and execute endless buy and sell swap transactions simultaneously on the Raydium platform. It leverages Solana's blockchain technology to perform these operations efficiently.
 
-## Features
+## 🔧 Last Version's Demerits
+- ❌ **Repetitive buy and sell with one wallet**: The last version of the Raydium Volume Bot used fixed wallets, so it was apparent on DexScreener that some wallets performed repetitive buy and sell actions.
+- ❌ **No increase in the number of makers**: It didn't increase the number of pool makers, only the volume.
+- ❌ **Gathering token instead of SOL**: When gathering, if there were tokens left, it didn't sell them before gathering. Instead, it just gathered tokens to the main wallet.
+- ❌ **Equal number of buys and sells**: One-time buy and one-time sell actions left sell pressure at the end, as there was always a sell at the end of the volume operation.
 
-- **Automated SOL Distribution**: Distributes SOL to new wallets.
-- **Endless Buy and Sell Swaps**: Performs simultaneous buy and sell transactions.
-- **Configurable Parameters**: Allows customization of buy amounts, intervals, distribution settings, and more.
-- **Massive Buy Mode**: Enables the configuration of multiple wallets for large-scale buy operations.
-- **Sell Mode**: Gradually sells all tokens in sub-wallets through small transactions.
-- **Token Pair Settings**: Configurable token mint and pool ID for swap operations.
-- **Logging**: Supports adjustable logging levels for better monitoring and debugging.
+## 🚀 Improvements
+- ✅ **Transferring SOL to new wallet**: After buying and selling in one wallet, it transfers SOL to a newly created wallet and continues buying and selling there.
+- ✅ **Maker increase**: New wallets are created every round of buying and selling, increasing the number of makers.
+- ✅ **Sell before gather**: When gathering, if there are tokens left in the wallet, it sells the tokens first and gathers only SOL (the token account rent of 0.00203 SOL is reclaimed).
+- ✅ **More buys than sells**: It randomly buys twice with SOL in the wallet and sells all tokens after some time, making the number of buys twice as many as sells, thus creating more buy pressure.
 
-## Environment Variables
+## 🌟 Features
+- ⚙️ **Automated SOL Distribution**: Distributes SOL to new wallets.
+- 🔄 **Endless Buy and Sell Swaps**: Performs simultaneous buy and sell transactions.
+- 🚀 **Swap with Jupiter V6**: Swap is performed with Jupiter V6 swap aggregator.
+- 🛠️ **Configurable Parameters**: Allows customization of buy amounts, intervals, distribution settings, and more.
 
-The bot uses the following environment variables, which should be defined in a `.env` file:
+## 📋 Environment Variables
+
+The bot uses the following environment variables. Rename the `.env.copy` file to `.env` and set the necessary variables.
 
 ```env
 PRIVATE_KEY=                 # Private key for the main wallet
@@ -22,68 +31,57 @@ RPC_ENDPOINT=                # RPC endpoint for Solana
 RPC_WEBSOCKET_ENDPOINT=      # RPC WebSocket endpoint for Solana
 
 ####### BUY SETTING #######
-IS_RANDOM=true               # Enable random buy amounts
-DISTRIBUTION_AMOUNT=0.01     # Amount of SOL to distribute to each wallet
-BUY_AMOUNT=0.01              # Fixed buy amount
-BUY_UPPER_AMOUNT=0.002       # Upper limit for random buy amount
-BUY_LOWER_AMOUNT=0.001       # Lower limit for random buy amount
+BUY_UPPER_PERCENT=60         # Higher percent limit of SOL that can be used to buy token in wallet
+BUY_LOWER_PERCENT=30         # Lower percent limit of SOL (30 means, it buys with larger than 30% of SOL in wallet when buy)
 
-BUY_INTERVAL_MAX=2000        # Maximum interval between buys in milliseconds
-BUY_INTERVAL_MIN=4000        # Minimum interval between buys in milliseconds
+BUY_INTERVAL_MAX=30          # Upper limit of seconds to wait after second buy
+BUY_INTERVAL_MIN=2           # Lower limit of seconds (it waits from 2 to 30 secs after second buy before second buy)
 
-CHECK_BAL_INTERVAL=3000      # Interval to check wallet balances in milliseconds
-DISTRIBUTE_WALLET_NUM=8      # Number of wallets to distribute SOL to
+SELL_INTERVAL_MAX=30         # Upper limit of seconds to wait after sell
+SELL_INTERVAL_MIN=3          # Lower limit of seconds (it waits from 2 to 30 secs after sell to transfer SOL)
 
-SWAP_ROUTING=true            # Enable swap routing
+DISTRIBUTE_WALLET_NUM=4      # Number of wallets that run in parallel which makes volume (max: 20)
 
-###### FOR MASSIVE BUY #####
-WALLET_NUM=8                 # Number of wallets for massive buy operations
+SLIPPAGE=50                  # Slippage in percent
 
-########## FOR SELL MODE ##########
-SELL_ALL_BY_TIMES=20         # Number of times to sell all tokens in sub-wallets gradually
-SELL_PERCENT=100             # Percentage of tokens to sell from the main wallet
-
-#### TOKEN PAIR SETTING ####
-TOKEN_MINT=6VbEGuqwhjdgV9NxhMhvRkrFqXVNk53CvD7hK3C3yQS9  # Token mint address
-POOL_ID=null                  # Pool ID for the token pair
-
-TX_FEE=10                    # Transaction fee
-ADDITIONAL_FEE=0.006         # Additional fee (should be larger than 0.006 SOL)
-JITO_KEY=                    # Jito key
-JITO_FEE=120000              # Jito fee
-BLOCKENGINE_URL=ny.mainnet.block-engine.jito.wtf  # Block engine URL
-
-###### GENERAL SETTING ######
-LOG_LEVEL=info               # Logging level (info, debug, error)
+TOKEN_MINT=7MFX5LySd9CdaD8irWnLLKanpDw6gxbBuhEg3qCHWc4C   # Mint address of token to increase volume
 ```
 
-## Usage
-1. Clone the repository
+#  🚀 Usage
+### 1. Clone the repository
 ```
-git clone https://github.com/rabnail/volume-bot_raydium.git
-cd volume-bot_raydium
+git clone https://github.com/solana-lunatic/Raydium-Volume-Bot-V2.git
+cd Raydium-Volume-Bot-V2
 ```
-2. Install dependencies
+### 2. Install dependencies
 ```
 npm install
 ```
-3. Configure the environment variables
+### 3. Configure the environment variables
 
-Rename the .env.copy file to .env and set RPC and WSS, main keypair's secret key, and jito auth keypair.
+Rename the .env.copy file to .env and set RPC and WSS, main keypair's secret key and other variables.
 
-4. Run the bot
+### 4. Run the bot
 
 ```
 npm start
 ```
 
+### 5. Gather the funds from distributed wallets
 
-## Author
+```
+npm run gather
+```
 
-Discord: rabnail_15 in discord
 
-Twitter: [@Rabnail](https://twitter.com/Rabnail_SOL)
+# 👤 Author
 
-Telegram: [@Rabnail](https://t.me/rab_nail)
+### Discord: rabnail_15 in discord
+
+### Twitter: [@Rabnail](https://twitter.com/Rabnail_SOL)   
+https://twitter.com/Rabnail_SOL
+
+### Telegram: [@Rabnail](https://t.me/rab_nail)   
+https://t.me/rab_nail
 
 You can always find me here, for help, or for other projects.
