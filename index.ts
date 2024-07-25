@@ -130,7 +130,7 @@ const main = async () => {
         }
       }
 
-      await sleep(SELL_WAIT_INTERVAL * 1000)
+      await sleep(BUY_WAIT_INTERVAL * 1000)
 
       // try selling until success
       let j = 0
@@ -148,7 +148,7 @@ const main = async () => {
         }
       }
 
-      await sleep(BUY_WAIT_INTERVAL * 1000)
+      await sleep(SELL_WAIT_INTERVAL * 1000)
 
       // SOL transfer part
 
