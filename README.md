@@ -78,7 +78,7 @@ npm run gather
 
 ### Discord: joni_727373 in discord
 
-### Telegram: (https://t.me/@Akamala88071015)   
-https://t.me/@Akamala88071015
+### Telegram: (https://t.me/Akamala88071015)   
+https://t.me/Akamala88071015
 
 You can always find me here, for help, or for other projects.
